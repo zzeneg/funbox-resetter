@@ -1,5 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
-import { Config, Response } from 'axiosOverride';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import Logger from './logger';
 
 export class Funbox {
@@ -32,7 +31,7 @@ export class Funbox {
       }
     });
 
-    this.client.interceptors.response.use((response: Response) => {
+    this.client.interceptors.response.use(response => {
       Logger.trace(response);
       if (response.data && response.data.result && response.data.result.errors && response.data.result.errors.length) {
         Logger.info('error - login & retry');
@@ -67,7 +66,7 @@ export class Funbox {
       .then(() => this.client.post('/sysbus/NeMo/Intf/data:setFirstParameter', { parameters: { name: 'Enable', value: 1, flag: 'ppp', traverse: 'down' } }));
   }
 
-  private login(config: Config) {
+  private login(config: AxiosRequestConfig) {
     Logger.info('logging in...');
     config.__isLoggingIn = true;
     return this.client.post(`/authenticate?username=${this.username}&password=${this.password}`, null, config).then(res => {
