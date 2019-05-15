@@ -18,8 +18,8 @@ export class Funbox {
       baseURL: url,
     });
 
-    this.client.interceptors.request.use((config: any) => {
-      Logger.trace(config);
+    this.client.interceptors.request.use(config => {
+      Logger.trace('REQUEST', config.url, config.data, config.headers);
       if (config.__isLoggingIn === true) {
         return config;
       } else if (this.cookie && this.contextId) {
@@ -32,7 +32,7 @@ export class Funbox {
     });
 
     this.client.interceptors.response.use(response => {
-      Logger.trace(response);
+      Logger.trace('RESPONSE', response.config.url, response.config.data, response.config.headers);
       if (response.data && response.data.result && response.data.result.errors && response.data.result.errors.length) {
         Logger.info('error - login & retry');
         if (response.config.__isRetrying) {
@@ -71,7 +71,6 @@ export class Funbox {
     config.__isLoggingIn = true;
     return this.client.post(`/authenticate?username=${this.username}&password=${this.password}`, null, config).then(res => {
       Logger.info('logged in');
-      Logger.trace(res);
       this.cookie = res.headers['set-cookie'];
       this.contextId = res.data.data.contextID;
       return res;
