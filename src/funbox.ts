@@ -32,7 +32,7 @@ export class Funbox {
     });
 
     this.client.interceptors.response.use(response => {
-      Logger.trace('RESPONSE', response.config.url, response.config.data, response.config.headers);
+      Logger.trace('RESPONSE', response.config.url, response.status, response.data, response.headers);
       if (response.data && response.data.result && response.data.result.errors && response.data.result.errors.length) {
         Logger.info('error - login & retry');
         if (response.config.__isRetrying) {
