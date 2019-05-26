@@ -19,7 +19,7 @@ export class Funbox {
     });
 
     this.client.interceptors.request.use(config => {
-      Logger.trace('REQUEST', config.url, config.data, config.headers);
+      Logger.trace({ url: config.url, data: config.data, headers: config.headers }, 'request {url}');
       if (config.__isLoggingIn === true) {
         return config;
       } else if (this.cookie && this.contextId) {
@@ -27,33 +27,31 @@ export class Funbox {
         config.headers['X-Context'] = this.contextId;
         return config;
       } else {
-        return this.login(config).then(res => config);
+        return this.login(config).then(() => config);
       }
     });
 
     this.client.interceptors.response.use(response => {
-      Logger.trace('RESPONSE', response.config.url, response.status, response.data, response.headers);
+      Logger.trace({ url: response.config.url, status: response.status, data: response.data, headers: response.headers }, 'response {status} {url}');
       if (response.data && response.data.result && response.data.result.errors && response.data.result.errors.length) {
-        Logger.info('error - login & retry');
         if (response.config.__isRetrying) {
-          return Promise.reject(response.data.result.errors[0]);
+          return Promise.reject(response.data.result.errors);
         }
-        response.config.__isRetrying = true;
-        return this.login(response.config).then(() => this.client(response.config));
+
+        return this.retryRequest(response.config);
       }
       return response;
     }, error => {
-      Logger.error(error);
-      if (error.response && error.response.status === 401) {
-        Logger.info('401 - Autenticating...');
-
-        if (error.config && error.config.__isLoggingIn) {
-          return Promise.reject('LOGIN ERROR');
+      Logger.error(error, 'response error');
+      if (error.response && error.response.status === 401 && error.config && !error.config.__isLoggingIn) {
+        if (error.config.__isRetrying) {
+          return Promise.reject(error);
         }
 
-        return this.client(error.config);
+        return this.retryRequest(error.config);
       }
-      return Promise.reject(error.response || error.code || error.error || error);
+
+      return Promise.reject(error);
     });
   }
 
@@ -64,6 +62,12 @@ export class Funbox {
   resetConnection() {
     return this.client.post('/sysbus/NeMo/Intf/data:setFirstParameter', { parameters: { name: 'Enable', value: 0, flag: 'ppp', traverse: 'down' } })
       .then(() => this.client.post('/sysbus/NeMo/Intf/data:setFirstParameter', { parameters: { name: 'Enable', value: 1, flag: 'ppp', traverse: 'down' } }));
+  }
+
+  private retryRequest(config: AxiosRequestConfig) {
+    Logger.warn('error - login & retry');
+    config.__isRetrying = true;
+    return this.login(config).then(() => this.client(config));
   }
 
   private login(config: AxiosRequestConfig) {

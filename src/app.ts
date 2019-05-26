@@ -12,7 +12,11 @@ class App {
     Logger.info('starting funbox');
 
     let config = dotenv.config();
-    Logger.trace(config);
+    if (config.error) {
+      Logger.error(config.error, 'config error');
+    } else {
+      Logger.trace({ config: config.parsed }, 'config');
+    }
 
     this.funbox = new Funbox(process.env.FUNBOX_URL, process.env.FUNBOX_USERNAME, process.env.FUNBOX_PASSWORD);
 
@@ -21,7 +25,7 @@ class App {
 
   private static resetConnection() {
     Logger.info('resetting the connection');
-    this.funbox.resetConnection().catch(err => Logger.error(err));
+    this.funbox.resetConnection().catch(error => Logger.error({ err: error }, 'reset connection failed'));
   }
 }
 
