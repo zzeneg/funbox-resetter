@@ -19,15 +19,20 @@ export class Funbox {
     });
 
     this.client.interceptors.request.use(config => {
-      Logger.trace({ url: config.url, data: config.data, headers: config.headers }, 'request {url}');
       if (config.__isLoggingIn === true) {
         return config;
       } else if (this.cookie && this.contextId) {
         config.headers.cookie = this.cookie;
         config.headers['X-Context'] = this.contextId;
+        Logger.trace({ url: config.url, data: config.data, headers: config.headers }, 'request {url}');
         return config;
       } else {
-        return this.login(config).then(() => config);
+        return this.login(config).then(() => {
+          config.headers.cookie = this.cookie;
+          config.headers['X-Context'] = this.contextId;
+          Logger.trace({ url: config.url, data: config.data, headers: config.headers }, 'request {url}');
+          return config;
+        });
       }
     });
 
@@ -56,7 +61,12 @@ export class Funbox {
   }
 
   getInfo() {
-    return this.client.post('/sysbus/Devices/Device/HGW:get');
+    return this.client.post('/sysbus/Devices/Device/HGW:get')
+      .then(x => x.data);
+  }
+
+  reboot() {
+    return this.client.post('/sysbus/NMC:reboot', { parameters: {} });
   }
 
   resetConnection() {

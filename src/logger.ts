@@ -9,7 +9,7 @@ let createLogger = () => {
     streams: [
       {
         stream: process.stdout,
-        level: 'info',
+        level: 'trace',
       },
       seq.createStream({
         apiKey: process.env.SEQ_FUNBOX_APIKEY,

@@ -25,7 +25,16 @@ class App {
 
   private static resetConnection() {
     Logger.info('resetting the connection');
-    this.funbox.resetConnection().catch(error => Logger.error({ err: error }, 'reset connection failed'));
+    this.funbox.resetConnection()
+      .then(() => Logger.info('reset connection completed'))
+      .catch(error => Logger.error(error, 'reset connection failed'));
+  }
+
+  private static reboot() {
+    Logger.info('rebooting');
+    this.funbox.reboot()
+      .then(() => Logger.info('restart completed'))
+      .catch(error => Logger.error(error, 'reboot failed'));
   }
 }
 
