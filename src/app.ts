@@ -20,7 +20,7 @@ class App {
 
     this.funbox = new Funbox(process.env.FUNBOX_URL, process.env.FUNBOX_USERNAME, process.env.FUNBOX_PASSWORD);
 
-    schedule.scheduleJob('reset connection', process.env.FUNBOX_RESET_CRON, () => this.resetConnection());
+    schedule.scheduleJob('reboot', process.env.FUNBOX_RESET_CRON, () => this.reboot());
   }
 
   private static resetConnection() {
