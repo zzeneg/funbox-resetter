@@ -19,18 +19,24 @@ export class Funbox {
     });
 
     this.client.interceptors.request.use(config => {
+      Logger.trace({
+        url: config.url,
+        data: config.data,
+        headers: config.headers,
+        loggingIn: config.__isLoggingIn,
+        retrying: config.__isRetrying,
+      }, 'request {url}');
+
       if (config.__isLoggingIn === true) {
         return config;
       } else if (this.cookie && this.contextId) {
         config.headers.cookie = this.cookie;
         config.headers['X-Context'] = this.contextId;
-        Logger.trace({ url: config.url, data: config.data, headers: config.headers }, 'request {url}');
         return config;
       } else {
         return this.login(config).then(() => {
           config.headers.cookie = this.cookie;
           config.headers['X-Context'] = this.contextId;
-          Logger.trace({ url: config.url, data: config.data, headers: config.headers }, 'request {url}');
           return config;
         });
       }
@@ -87,6 +93,7 @@ export class Funbox {
       Logger.info('logged in');
       this.cookie = res.headers['set-cookie'];
       this.contextId = res.data.data.contextID;
+      config.__isLoggingIn = false;
       return res;
     });
   }
