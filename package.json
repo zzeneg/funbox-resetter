@@ -1,5 +1,5 @@
 {
-  "name": "fanbox-resetter",
+  "name": "funbox-resetter",
   "version": "1.0.0",
   "description": "Reset connection on your Orange Funbox 3.0 remotely",
   "main": "index.js",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zzeneg/fanbox-resetter.git"
+    "url": "git+https://github.com/zzeneg/funbox-resetter.git"
   },
   "author": "zzeneg",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zzeneg/fanbox-resetter/issues"
+    "url": "https://github.com/zzeneg/funbox-resetter/issues"
   },
-  "homepage": "https://github.com/zzeneg/fanbox-resetter#readme",
+  "homepage": "https://github.com/zzeneg/funbox-resetter#readme",
   "devDependencies": {
     "@types/bunyan": "^1.8.6",
     "@types/bunyan-seq": "^0.2.2",
